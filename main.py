@@ -1,5 +1,6 @@
 from __future__ import division
 
+
 # Our Backend for the App!
 # Built with Flask
 
@@ -15,6 +16,51 @@ from six.moves import queue
 # Create the application
 app = flask.Flask(__name__)
 
+response = ""
+
+htmlRES = ""
+
+def sendRequest(url, msg):
+    global response
+    headers = {'Content-Type': 'application/json'}
+    data = {'message': msg}
+    response2 = flask.request.get(url, headers=headers, json=data)
+    # print(1)
+    responseData = response2.json()
+    temp = responseData["message"]
+    if temp != "":
+        response = temp
+        print(response) 
+    else:
+        print('No data received')
+
+# sendRequest("http://localhost:3000/chatbot/message", "What is your favourite dish?")
+
+# @app.route('/chatbot/response', methods=['POST'])
+# def index1():
+#     global response
+#     data = request.get_json()
+#     if 'data' in data:
+#         response = data["data"]
+#         print(response)
+#         return f'The data received is: {data["data"]}'
+#     else:
+#         return 'No data received'
+
+@app.route('/r1/response', methods=['GET'])
+def index2():
+    global response
+
+    if response != "":
+        print("asad")
+        temp = response
+        response = ""
+        return temp
+    else:
+        return ""
+
+
+
 # serving home.html
 @app.route('/', methods=['GET'])
 def serve_page():
@@ -27,8 +73,18 @@ def process_query():
     data = flask.request.get_json();
     input = data['user_input']
     input_in_list = input.split(' ')
-    return flask.render_template('home.html', same=processInput(input_in_list), og=input)
+    print(flask.render_template('home.html', same=processInput(input_in_list), og=input))
+    
+    htmlRES = flask.render_template('home.html', same=processInput(input_in_list), og=input)
 
+@app.route('/getresponse', methods=['GET'])
+def getRes():
+    global htmlRES
+    if(htmlRES != "" or htmlRES is None):
+        temp = htmlRES
+        htmlRES = ""
+        return temp
+    return ""
 
 def processInput(input_in_list):
     for s, i in enumerate(input_in_list):
@@ -115,4 +171,4 @@ def listen_print_loop(responses):
             num_chars_printed = 0
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="100.67.142.219", port=5000, debug=True)
